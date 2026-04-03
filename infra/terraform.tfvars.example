@@ -1,0 +1,8 @@
+aws_region           = "us-east-1"
+project_name         = "franchiseapi"
+environment          = "dev"
+ecr_image_identifier = "123456789012.dkr.ecr.us-east-1.amazonaws.com/franchiseapi:latest"
+
+tags = {
+  Owner = "Dan"
+}

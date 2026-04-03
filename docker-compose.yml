@@ -1,0 +1,39 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: franchiseapi-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: franchise_db
+      MYSQL_USER: franchise_user
+      MYSQL_PASSWORD: franchise_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "franchise_user", "-pfranchise_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: franchiseapi-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_R2DBC_URL: r2dbc:mysql://mysql:3306/franchise_db
+      SPRING_R2DBC_USERNAME: franchise_user
+      SPRING_R2DBC_PASSWORD: franchise_pass
+      SPRING_SQL_INIT_MODE: never
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
